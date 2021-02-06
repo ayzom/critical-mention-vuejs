@@ -193,10 +193,8 @@
     mounted() {
 
      this.dayToday = this.weekdays[this.currDate.getDay()];
-     console.log(this.weekdays);
-
       if (navigator.geolocation) {
-        var storedValues = window.localStorage.userLong;
+        const storedValues = window.localStorage.userLong;
         if (!storedValues) {
           navigator.geolocation.getCurrentPosition((position) => {
             this.userLong = position.coords.longitude;
@@ -205,34 +203,42 @@
             window.localStorage.userLong = this.userLong;
             this.isLatLongSet = true;
           })
-        } else {        
-          this.isLatLongSet = false;
         }
+      }
+      this.userLocation = window.localStorage.userLocation;
+      if(this.userLong || this.userLocation) {
+        this.isLatLongSet = true;
+      } else {
+        this.isLatLongSet = false;
       }
 
     },
     watch: {
       isLatLongSet(val) {
         if(val) {
-          console.log("hi",this.userLat,this.userLong);
-          return this.getWeatherData("",this.userLat,this.userLong)
-          .then(response => {
-            return this.setResponseData(response);
-          })
+          if(this.userLocation) {
+            return this.getWeatherData(this.userLocation)
+            .then(response => {
+              return this.setResponseData(response);
+            })
+          } else {
+            return this.getWeatherData("",this.userLat,this.userLong)
+            .then(response => {
+              return this.setResponseData(response);
+            })
+          }
         }
       }
     },
     methods:{
       getWeatherByLocation() {
-        console.log(this.userLocation);
+        window.localStorage.userLocation = this.userLocation;
         return this.getWeatherData(this.userLocation)
         .then(response => {
-          console.log(response);
           return this.setResponseData(response);
         })
       },
       getWeatherData(location="",lat="",long="") {
-        console.log({location, lat, long})
         let url = "https://api.openweathermap.org/data/2.5/weather";
         let api = "b5f558462160da78810acd0bb997a9fd";
         let apiURL;
@@ -248,17 +254,13 @@
         };
         return axios(config)
         .then(function (response) {
-          console.log(JSON.stringify(response.data));
           return (response.data);
         })
         .catch(function (error) {
-          console.log(error);
+          console.warn(error);
         });
       },
       setResponseData(data) {
-            console.log({data});
-
-          
             this.direction = this.getDirection(data.wind.deg);
             this.wind = data.wind.speed;
             this.feel = Math.floor(data.main.feels_like - 273.15);
@@ -313,20 +315,6 @@
           direction = "NNW";
         }
         return direction;
-      },
-      setTime() {
-          let date = new Date();
-          let Hours = date.getHours();
-          Hours == 0 ? (Hours = "12") : Hours;
-          let Minutes = date.getMinutes();
-          let Seconds = date.getSeconds();
-          Seconds < 10 ? (Seconds = "0" + Seconds) : Seconds;
-          Minutes < 10 ? (Minutes = "0" + Minutes) : Minutes;
-          Hours > 12 ? (Hours -= 12) : Hours;
-          Hours < 10 ? (Hours = "0" + Hours) : Hours;
-
-          // console.log(Hours + ":" + Minutes);
-          //Time.html(Hours + ":" + Minutes + ":" + Seconds + "<sub>am</sub>");
       }
     }
   }
