@@ -1,17 +1,17 @@
 <template>
 <div class="bg">
-  <HelloWorld/>
+  <Weather/>
 </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld';
+import Weather from './components/Weather';
 
 export default {
   name: 'App',
 
   components: {
-    HelloWorld,
+    Weather,
   },
 
   data: () => ({

@@ -11,15 +11,13 @@
         <v-spacer></v-spacer>
       </v-system-bar>
 
-
-  <v-container>
     <div class="mt-top">
       <form class="input" action="">
         <input type="text" v-model="userLocation" class="inputValue" @keydown.enter.prevent="getWeatherByLocation" placeholder="Enter a city">
         <button type="button" class="searchBtn" @click.prevent="getWeatherByLocation">Search</button>
       </form>
     </div>
-
+  <v-container v-if="isData">
     <div class="mt-top-v1">
       <v-card
         class="mx-auto"
@@ -103,8 +101,56 @@
             </v-card>
           </v-col>
         </v-row>
-      </v-container>
+    </v-container>
+  </v-container>
 
+  <v-container v-else>
+    <div class="skeleton-top">
+            <v-skeleton-loader
+              class="mx-auto"
+              max-width="300"
+              type="card"
+              height=160
+            ></v-skeleton-loader>
+    </div>
+    <div class="mt-top-v1">
+
+        <v-row no-gutters>
+          <v-col>
+            <v-skeleton-loader
+              class="mx-auto"
+              max-width="300"
+              type="card"
+              height=60
+            ></v-skeleton-loader>
+          </v-col>
+          <v-col>
+            <v-skeleton-loader
+              class="mx-auto"
+              max-width="300"
+              type="card"
+              height=60
+            ></v-skeleton-loader>
+          </v-col>
+          <v-col>
+            <v-skeleton-loader
+              class="mx-auto"
+              max-width="300"
+              type="card"
+              height=60
+            ></v-skeleton-loader>
+          </v-col>
+          <v-col>
+            <v-skeleton-loader
+              class="mx-auto"
+              max-width="300"
+              type="card"
+              height=60
+            ></v-skeleton-loader>
+          </v-col>
+        </v-row>
+
+    </div>
   </v-container>
 
   </div>  
@@ -137,7 +183,8 @@
         img: "",
         currDate: new Date(),
         weekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-        dayToday: ""
+        dayToday: "",
+        isData: false
       }
     },
     mounted() {
@@ -214,6 +261,8 @@
             this.country = data.sys.country;
             this.desc = data.weather[0].main;
             this.img = data.weather[0].icon;
+
+            this.isData = true;
             return;
       },
       getDirection(direction) {
@@ -309,5 +358,9 @@ h2 {
     padding: 8px;
     border: 0;
     border-radius: 5px;
+}
+.skeleton-top {
+  margin-top: 100px;
+  text-align: -webkit-center;
 }
 </style>
