@@ -166,6 +166,8 @@
     },
     data: () => {
       return {
+        userLat:"",
+        userLong: "",
         userLocation: "",
         direction: "",
         wind: "",
@@ -184,7 +186,8 @@
         currDate: new Date(),
         weekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
         dayToday: "",
-        isData: false
+        isData: false,
+        isLatLongSet: false
       }
     },
     mounted() {
@@ -196,19 +199,28 @@
         var storedValues = window.localStorage.userLong;
         if (!storedValues) {
           navigator.geolocation.getCurrentPosition((position) => {
-            let long = position.coords.longitude;
-            let lat = position.coords.latitude;
-            window.localStorage.userLat = lat;
-            window.localStorage.userLong = long;
+            this.userLong = position.coords.longitude;
+            this.userLat = position.coords.latitude;
+            window.localStorage.userLat = this.userLat;
+            window.localStorage.userLong = this.userLong;
+            this.isLatLongSet = true;
           })
+        } else {        
+          this.isLatLongSet = false;
         }
-        this.getWeatherData("",window.localStorage.userLat,window.localStorage.userLong)
-        .then(response => {
-          console.log(response);
-          return this.setResponseData(response);
-        })
       }
 
+    },
+    watch: {
+      isLatLongSet(val) {
+        if(val) {
+          console.log("hi",this.userLat,this.userLong);
+          return this.getWeatherData("",this.userLat,this.userLong)
+          .then(response => {
+            return this.setResponseData(response);
+          })
+        }
+      }
     },
     methods:{
       getWeatherByLocation() {
@@ -220,6 +232,7 @@
         })
       },
       getWeatherData(location="",lat="",long="") {
+        console.log({location, lat, long})
         let url = "https://api.openweathermap.org/data/2.5/weather";
         let api = "b5f558462160da78810acd0bb997a9fd";
         let apiURL;
@@ -233,7 +246,6 @@
           method: 'get',
           url: apiURL
         };
-        console.log({config});
         return axios(config)
         .then(function (response) {
           console.log(JSON.stringify(response.data));
@@ -246,6 +258,7 @@
       setResponseData(data) {
             console.log({data});
 
+          
             this.direction = this.getDirection(data.wind.deg);
             this.wind = data.wind.speed;
             this.feel = Math.floor(data.main.feels_like - 273.15);
